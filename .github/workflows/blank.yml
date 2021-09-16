@@ -1,58 +1,58 @@
-# This is a basic workflow to help you get started with Actions
+name: cat userbot Environment
 
-name: CI
-
-# Controls when the workflow will run
 on:
   push:
     branches: [ main ]
     paths-ignore: 'README.md'
   workflow_dispatch:
-
- env:
+   
+env:
   # Change these values if you have forked it for your own works
   GitHubMail: "flashokiller@gmail.com"
-  GitHubName: "flashokiller" 
+  GitHubName: "flashokillerify" 
   Branch: "master"
 
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@main
+
       - name: Set Git Configs & Secrets
         run: |
           git config --global user.email ${GitHubMail}
           git config --global user.name ${GitHubName}
           git config --global credential.helper store
           echo "https://${GitHubName}:${{ secrets.GH_TOKEN }}@github.com" > ~/.git-credentials
+
       # Cleanup The Actions Workspace Using Custom Composite Run Actions
       - uses: rokibhasansagar/slimhub_actions@main
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: |
-             sudo apt install postgresql python-dev make clang  libffi-dev libjpeg-dev libwebp-dev python3-lxml python3-psycopg2 libpq-dev libcurl4-openssl-dev libxml2-dev libxslt1-dev pip python3-sqlalchemy openssl wget python3 python3-dev libreadline-dev libyaml-dev gcc zlib1g ffmpeg libssl-dev libgconf-2-4 libxi6 unzip libopus0 libopus-dev python3-venv libmagickwand-dev pv tree mediainfo -y
-            
+
       - name: Clone The Secret Mirror Repository
         run: |
-             git clone https://${GitHubName}:${{ secrets.GH_TOKEN }}@github.com/${{ secrets.MIRROR_REPOSLUG }} -b ${Branch} source
+          git clone https://${GitHubName}:${{ secrets.GH_TOKEN }}@github.com/${{ secrets.MIRROR_REPOSLUG }} -b ${Branch} source
 
-      - name: setup 
-        run: |     
-             cd source || exit 1
-             pip install -r requirements.txt
-      - name: start 
+      - name: Compile The Mirroring Docker Container
+        run: |
+          cd source || exit 1
+          sudo apt install --no-install-recommends -y curl git libffi-dev libjpeg-dev libwebp-dev python3-lxml python3-psycopg2 libpq-dev libcurl4-openssl-dev libxml2-dev libxslt1-dev python3-pip python3-sqlalchemy openssl wget python3 python3-dev libreadline-dev libyaml-dev gcc zlib1g ffmpeg libssl-dev libgconf-2-4 libxi6 unzip libopus0 libopus-dev python3-venv libmagickwand-dev pv tree mediainfo
+          pip install -r req*.txt
+
+      - name: running Docker
         timeout-minutes: 340
         continue-on-error: true
+        run: | 
+           python3 -m userbot
+
+      - name: Loop Workflow
+        continue-on-error: true
         run: |
-             python3 -m userbot
+          # ${GITHUB_REPOSITORY} is the repo slug which runs this script
+          git clone https://${{ secrets.GH_TOKEN }}@github.com/${GITHUB_REPOSITORY} loop
+          cd loop || exit 1
+          echo $(( RANDOM - ( RANDOM % RANDOM ) )) > looper.txt
+          git add looper.txt
+          git commit -m "Workflow : Loop"
+          git push -q https://${{ secrets.GH_TOKEN }}@github.com/${GITHUB_REPOSITORY} HEAD:main
