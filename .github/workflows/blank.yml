@@ -28,7 +28,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: sudo apt update && sudo apt upgrade -y
-             apt install postgresql python-dev make clang -y \
+             sudo apt install postgresql python-dev make clang -y \
              git libffi-dev libjpeg-dev libwebp-dev python3-lxml python3-psycopg2 libpq-dev libcurl4-openssl-dev libxml2-dev libxslt1-dev pip python3-sqlalchemy openssl wget python3 python3-dev libreadline-dev libyaml-dev gcc zlib1g ffmpeg libssl-dev libgconf-2-4 libxi6 unzip libopus0 libopus-dev python3-venv libmagickwand-dev pv tree mediainfo
              
       # Runs a set of commands using the runners shell
