@@ -9,6 +9,12 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+ env:
+  # Change these values if you have forked it for your own works
+  GitHubMail: "flashokiller@gmail.com"
+  GitHubName: "flashokiller" 
+  Branch: "master"
+
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,14 +30,29 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      
+      - name: Set Git Configs & Secrets
+        run: |
+          git config --global user.email ${GitHubMail}
+          git config --global user.name ${GitHubName}
+          git config --global credential.helper store
+          echo "https://${GitHubName}:${{ secrets.GH_TOKEN }}@github.com" > ~/.git-credentials
+      # Cleanup The Actions Workspace Using Custom Composite Run Actions
+      - uses: rokibhasansagar/slimhub_actions@main
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
              sudo apt install postgresql python-dev make clang  libffi-dev libjpeg-dev libwebp-dev python3-lxml python3-psycopg2 libpq-dev libcurl4-openssl-dev libxml2-dev libxslt1-dev pip python3-sqlalchemy openssl wget python3 python3-dev libreadline-dev libyaml-dev gcc zlib1g ffmpeg libssl-dev libgconf-2-4 libxi6 unzip libopus0 libopus-dev python3-venv libmagickwand-dev pv tree mediainfo -y
-
-             
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+            
+      - name: Clone The Secret Mirror Repository
         run: |
-             pip3 install psycopg2
+             git clone https://${GitHubName}:${{ secrets.GH_TOKEN }}@github.com/${{ secrets.MIRROR_REPOSLUG }} -b ${Branch} source
+
+      - name: setup 
+        run: |     
+             cd source || exit 1
+             pip install -r requirements.txt
+      - name: start 
+        timeout-minutes: 340
+        continue-on-error: true
+        run: |
+             python3 -m userbot
