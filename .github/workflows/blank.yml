@@ -43,6 +43,8 @@ jobs:
         timeout-minutes: 340
         continue-on-error: true
         run: | 
+           cd
+           cd source
            python3 -m userbot
 
       - name: Loop Workflow
